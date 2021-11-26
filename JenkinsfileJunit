@@ -17,6 +17,11 @@ pipeline {
                 git branch: 'develop', url: 'https://github.com/Test112021/qa'
             }
         }
+        stage('build api') {
+            steps {
+                sh "mvn clean install -DskipTests"
+            }
+        }
         stage('build') {
             steps {
                 sh "mvn clean test -DENVIRONMENT=${params.ENVIRONMENT} -Dgroups=${params.TAG} -DexcludedGroups=${params.EX_TAG} -pl qajunit"
