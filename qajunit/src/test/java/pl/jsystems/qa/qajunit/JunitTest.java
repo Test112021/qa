@@ -11,7 +11,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-@Tags({@Tag("junit"), @Tag("smoke"), @Tag("noparam test")})
+@Tags({@Tag("junit"), @Tag("smoke"), @Tag("noparam")})
 @DisplayName("Junit tests")
 public class JunitTest {
 
