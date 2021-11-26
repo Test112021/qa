@@ -13,6 +13,7 @@
         <module>qajunit</module>
         <module>qagui</module>
         <module>qaapi</module>
+        <module>qadatabase</module>
     </modules>
 
     <dependencyManagement>
