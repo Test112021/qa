@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    triggers {
+        cron('40 14 * * *')
+    }
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'test', 'stage', 'prd'], description: 'Choose environment.')
+        choice(name: 'TAG', choices: ['', 'FrontEnd', 'smoke', 'Login', 'Notification', 'Keys_Action', 'Scroll', 'Alert', 'Frame', 'Window', 'BDD', 'BDD-PARAM', 'Login', 'wordpress', 'userpanel', 'website', 'website2', 'website3'], description: 'Choose tag.')
+        choice(name: 'EX_TAG', choices: ['', 'FrontEnd','smoke', 'Login', 'Notification', 'Keys_Action', 'Scroll', 'Alert', 'Frame', 'Window', 'BDD', 'BDD-PARAM', 'Login', 'wordpress', 'userpanel', 'website', 'website2', 'website3'], description: 'Choose tag.')
+        choice(name: 'BROWSER', choices: ['firefox','chrome', 'edge'], description: 'Choose browser.')
+        choice(name: 'MACHINE', choices: ['remote','local'], description: 'Choose machine.')
+        string(name: 'REMOTE_URL', defaultValue: 'http://172.24.192.1:4444/wd/hub', description: 'Remote selenium grid.')
+    }
+
+    stages {
+        stage('checkout') {
+            steps {
+                git branch: 'develop', url: 'https://github.com/Test112021/qa'
+            }
+        }
+        stage('build api') {
+            steps {
+                sh "mvn clean install -DskipTests"
+            }
+        }
+        stage('build') {
+            steps {
+                sh "mvn clean test -Dgroups=${params.TAG} -DexcludedGroups=${params.EX_TAG} -DENVIRONMENT=${params.ENVIRONMENT} -DBROWSER=${params.BROWSER} -DMACHINE=${params.MACHINE} -DREMOTE_URL=${params.REMOTE_URL} -pl qagui"
+            }
+        }
+    }
+
+    post {
+        always {
+            allure([
+                     includeProperties: false,
+                     jdk: '',
+                     properties: [[key: 'allure.issues.tracker.pattern', value: 'http://tracker.company.com/%s'],
+                     [key: 'allure.tests.management.pattern', value: 'http://tms.company.com/%s'],
+                     ],
+                     reportBuildPolicy: 'ALWAYS',
+                     results: [[path: 'qagui/target/allure-results']]
+            ])
+            cucumber buildStatus: 'UNSTABLE', failedFeaturesNumber: -1, failedScenariosNumber: -1, failedStepsNumber: -1, fileIncludePattern: '**/*cucumber.json', jsonReportDirectory: 'qagui/target/', pendingStepsNumber: -1, skippedStepsNumber: -1, sortingMethod: 'ALPHABETICAL', undefinedStepsNumber: -1
+
+        }
+    }
+}

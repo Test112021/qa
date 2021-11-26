@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    triggers {
+        cron('40 14 * * *')
+    }
+
+    parameters {
+        choice(name: 'ENVIRONMENT', choices: ['dev', 'test', 'stage', 'prd'], description: 'Choose environment.')
+        choice(name: 'TAG', choices: ['Api'], description: 'Choose tag.')
+        choice(name: 'EX_TAG', choices: [''], description: 'Choose tag.')
+
+    }
+
+    stages {
+        stage('checkout') {
+            steps {
+                git branch: 'develop', url: 'https://github.com/Test112021/qa'
+            }
+        }
+        stage('build api') {
+            steps {
+                sh "mvn clean install -DskipTests"
+            }
+        }
+        stage('build') {
+            steps {
+                sh "mvn clean test -Dgroups=${params.TAG} -DexcludedGroups=${params.EX_TAG} -DENVIRONMENT=${params.ENVIRONMENT} -pl qaapi"
+            }
+        }
+    }
+
+    post {
+        always {
+            allure([
+                     includeProperties: false,
+                     jdk: '',
+                     properties: [[key: 'allure.issues.tracker.pattern', value: 'http://tracker.company.com/%s'],
+                     [key: 'allure.tests.management.pattern', value: 'http://tms.company.com/%s'],
+                     ],
+                     reportBuildPolicy: 'ALWAYS',
+                     results: [[path: 'qaapi/target/allure-results']]
+            ])
+
+        }
+    }
+}
