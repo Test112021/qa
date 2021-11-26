@@ -21,6 +21,11 @@ pipeline {
                 git branch: 'develop', url: 'https://github.com/Test112021/qa'
             }
         }
+        stage('build api') {
+            steps {
+                sh "mvn clean install -DskipTests"
+            }
+        }
         stage('build') {
             steps {
                 sh "mvn clean test -Dgroups=${params.TAG} -DexcludedGroups=${params.EX_TAG} -DENVIRONMENT=${params.ENVIRONMENT} -DBROWSER=${params.BROWSER} -DMACHINE=${params.MACHINE} -DREMOTE_URL=${params.REMOTE_URL} -Dcucumber.filter.tags=${params.CUCUMBER_TAG} -pl qagui"
