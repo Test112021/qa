@@ -47,4 +47,59 @@ public class UserDao {
 
         return userDb;
     }
+
+    public static void saveUser(UserDb userDb) {
+        String sql = "insert into testuser (id, name, surname) values ('" + userDb.id + "', '" + userDb.name + "', '" + userDb.surname +"')";
+        Statement statement = null;
+        try {
+            statement = DatabaseConnector.getConnection().createStatement();
+            statement.executeUpdate(sql);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+    }
+
+    public static void deleteUser(String id) {
+        String sql = "delete testuser where id = '" + id + "'";
+        Statement statement = null;
+        try {
+            statement = DatabaseConnector.getConnection().createStatement();
+            statement.executeUpdate(sql);
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+    }
+
+    public static void updateUser(UserDb userDb, String id) {
+        String sql = "update testuser set id = '" + userDb.id + "', name = '" + userDb.name + "', surname = '" + userDb.surname + "' where id = '" + id + "'";
+
+        Statement statement = null;
+        try {
+            statement = DatabaseConnector.getConnection().createStatement();
+            statement.executeUpdate(sql);
+
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        } finally {
+            try {
+                statement.close();
+            } catch (SQLException throwables) {
+                throwables.printStackTrace();
+            }
+        }
+
+    }
 }
